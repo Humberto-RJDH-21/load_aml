@@ -22,7 +22,7 @@ cnxn = pyodbc.connect('DSN=MYMSSQL;DATABASE='+database +
 cursor = cnxn.cursor()
 
 # Número de registros a insertar
-NO_REGISTROS=200
+NO_REGISTROS=20
 for x in range(NO_REGISTROS):
     # print("====================================================")
     # GETTING CONSTANTS
@@ -80,8 +80,12 @@ for x in range(NO_REGISTROS):
 
     FECHA=FECHAS[random.randrange(0, 9)]
     ROW=(CONTRATCD, POLIZA, CODOPER, TIPOOPERACIONID, INSTRMONETID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIO, MONTOMNCNTR, MONTOUSD,DSCONCEPTOPER, DSCONCEPTOPAGO, 'N', 'N', 'O', 0, 'S', '3', 'ADMIN', '00:00:00', FECHA[0], FECHA[1], FECHA[2], FECHA[3])    
-    cursor.execute('''INSERT INTO STP_UAT.IFT.MTS_HOPERACIONESCNTR(CONTRATANTECD, NUMPOLIZACNTR, CODOPER, TIPOOPERACIONID, INSTRMONETARIOID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIOCNTR, MONTOMNCNTR, MONTOUSD, DS_CONCEPTO_OPERACION,
+    try:
+        cursor.execute('''INSERT INTO STP_UAT.IFT.MTS_HOPERACIONESCNTR(CONTRATANTECD, NUMPOLIZACNTR, CODOPER, TIPOOPERACIONID, INSTRMONETARIOID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIOCNTR, MONTOMNCNTR, MONTOUSD, DS_CONCEPTO_OPERACION,
                                                               DS_CONCEPTO_PAGO, VIGENTE_CANCELACION, SW_TRANSACCION_MANUAL, STATUS_PROV, ID_PROCESO, SWSINCRONIZADO, CVE_ESTADO, CREADO_POR, HORA_OPERACION, FECHAOPERACIONCNTR,
                                                               FEC_CREACION, FEC_APERTURA_PRODUCTO, FEC_FIN_PRODUCTO)
                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',ROW)
-    cnxn.commit()
+    except pyodbc.DatabaseError as err:
+        cnxn.rollback()           
+    else:    
+        cnxn.commit()
