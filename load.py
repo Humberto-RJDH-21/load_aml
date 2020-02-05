@@ -3,6 +3,7 @@ import os
 import pyodbc
 import random
 import numpy as np
+import time
 from string_fn import randomStringDigits, randomDigits
 from constants import PRODUCTO, INSTR_MONETARIO, MONEDA, CONCEPTO, CONTRATANTE, FECHAS
 
@@ -15,14 +16,22 @@ username = os.environ.get('AML_USERNAME','STP_USERNAME')
 # Obtiene el password desde una variable de ambiente [AML_PASSWORD], 
 # si no le asigna por default: STP_PSW
 password = os.environ.get('AML_PASSWORD','STP_PSW')
+
 # CREATE CONNECTION
-cnxn = pyodbc.connect('DSN=MYMSSQL;DATABASE='+database +
-                      ';UID='+username+';PWD='+password)
+# cnxn = pyodbc.connect('DSN=MYMSSQL;DATABASE='+database +
+#                       ';UID='+username+';PWD='+password)
+cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'                     
+                     'SERVER=10.30.5.40,1433;'
+                     'DATABASE=STP_UAT;'
+                     'UID=STP_APP;'
+                     'PWD=STP_4PP', autocommit=True)
 # CREATE CURSOR
 cursor = cnxn.cursor()
 
+t1 = time.time()
 # Número de registros a insertar
-NO_REGISTROS=20
+NO_REGISTROS=1000
+print('*** Inicia el proceso de incerción a la BD')
 for x in range(NO_REGISTROS):
     # print("====================================================")
     # GETTING CONSTANTS
@@ -79,13 +88,17 @@ for x in range(NO_REGISTROS):
     DSCONCEPTOPAGO = CONCEPT[2]
 
     FECHA=FECHAS[random.randrange(0, 9)]
-    ROW=(CONTRATCD, POLIZA, CODOPER, TIPOOPERACIONID, INSTRMONETID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIO, MONTOMNCNTR, MONTOUSD,DSCONCEPTOPER, DSCONCEPTOPAGO, 'N', 'N', 'O', 0, 'S', '3', 'ADMIN', '00:00:00', FECHA[0], FECHA[1], FECHA[2], FECHA[3])    
+    ROW=(CONTRATCD, POLIZA, CODOPER, TIPOOPERACIONID, INSTRMONETID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIO, MONTOMNCNTR, MONTOUSD,DSCONCEPTOPER, DSCONCEPTOPAGO, 'N', 'N', 'O', 0, 'S', '3', 'ADMIN', '00:00:00', FECHA[0], FECHA[1], FECHA[2], FECHA[3])
     try:
         cursor.execute('''INSERT INTO STP_UAT.IFT.MTS_HOPERACIONESCNTR(CONTRATANTECD, NUMPOLIZACNTR, CODOPER, TIPOOPERACIONID, INSTRMONETARIOID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIOCNTR, MONTOMNCNTR, MONTOUSD, DS_CONCEPTO_OPERACION,
                                                               DS_CONCEPTO_PAGO, VIGENTE_CANCELACION, SW_TRANSACCION_MANUAL, STATUS_PROV, ID_PROCESO, SWSINCRONIZADO, CVE_ESTADO, CREADO_POR, HORA_OPERACION, FECHAOPERACIONCNTR,
                                                               FEC_CREACION, FEC_APERTURA_PRODUCTO, FEC_FIN_PRODUCTO)
                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',ROW)
     except pyodbc.DatabaseError as err:
+        print(f'**** Error en el proceso de inserción -> {err}')
         cnxn.rollback()           
     else:    
         cnxn.commit()
+
+t2 = time.time()
+print(f'***** Se tardo en ejecutar {NO_REGISTROS} en {(t2 - t1) * 1000} segundos')
