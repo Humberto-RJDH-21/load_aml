@@ -30,8 +30,8 @@ cursor = cnxn.cursor()
 
 t1 = time.time()
 # Número de registros a insertar
-NO_REGISTROS=1000
-print('*** Inicia el proceso de incerción a la BD')
+NO_REGISTROS=100000
+print('*** Inicia el proceso de inserción a la BD')
 for x in range(NO_REGISTROS):
     # print("====================================================")
     # GETTING CONSTANTS
