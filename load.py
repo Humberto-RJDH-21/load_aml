@@ -1,4 +1,5 @@
 # IMPORTS
+import os
 import pyodbc
 import random
 import numpy as np
@@ -7,19 +8,22 @@ from constants import PRODUCTO, INSTR_MONETARIO, MONEDA, CONCEPTO, CONTRATANTE, 
 
 
 # VARS FOR DB
-server = '1433:10.30.5.50'
 database = 'STP_UAT'
-username = 'STP_APP'
-password = 'STP_4PP'
+# Obtiene el username desde una variable de ambiente [AML_USERNAME], 
+# si no le asigna por default: STP_USERNAME
+username = os.environ.get('AML_USERNAME','STP_USERNAME')
+# Obtiene el password desde una variable de ambiente [AML_PASSWORD], 
+# si no le asigna por default: STP_PSW
+password = os.environ.get('AML_PASSWORD','STP_PSW')
 # CREATE CONNECTION
 cnxn = pyodbc.connect('DSN=MYMSSQL;DATABASE='+database +
                       ';UID='+username+';PWD='+password)
 # CREATE CURSOR
 cursor = cnxn.cursor()
 
-# FOR 50
-#VALUES=[]
-for x in range(200):
+# Número de registros a insertar
+NO_REGISTROS=200
+for x in range(NO_REGISTROS):
     # print("====================================================")
     # GETTING CONSTANTS
     CONTR_ID = CONTRATANTE[random.randrange(0, 72)]
