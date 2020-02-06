@@ -88,12 +88,16 @@ for x in range(NO_REGISTROS):
     DSCONCEPTOPAGO = CONCEPT[2]
 
     FECHA=FECHAS[random.randrange(0, 9)]
-    ROW=(CONTRATCD, POLIZA, CODOPER, TIPOOPERACIONID, INSTRMONETID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIO, MONTOMNCNTR, MONTOUSD,DSCONCEPTOPER, DSCONCEPTOPAGO, 'N', 'N', 'O', 0, 'S', '3', 'ADMIN', '00:00:00', FECHA[0], FECHA[1], FECHA[2], FECHA[3])
+    ROW=(CONTRATCD, CONTRATCD, POLIZA, CODOPER, TIPOOPERACIONID, INSTRMONETID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIO, MONTOMNCNTR, MONTOUSD,DSCONCEPTOPER, DSCONCEPTOPAGO, 'N', 'N', 'O', 0, 'S', '3', 'ADMIN', '00:00:00', FECHA[0], FECHA[1], FECHA[2], FECHA[3])
     try:
-        cursor.execute('''INSERT INTO STP_UAT.IFT.MTS_HOPERACIONESCNTR(CONTRATANTECD, NUMPOLIZACNTR, CODOPER, TIPOOPERACIONID, INSTRMONETARIOID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIOCNTR, MONTOMNCNTR, MONTOUSD, DS_CONCEPTO_OPERACION,
+        print('-' * 100)
+        print(f'***** Insertando {x + 1} de un total de {NO_REGISTROS}')
+        cursor.execute('''SET IDENTITY_INSERT STP_UAT.IFT.MTS_DCONTRATANTE ON''')
+        cursor.execute('''INSERT INTO STP_UAT.IFT.MTS_HOPERACIONESCNTR(CONTRATANTEID, CONTRATANTECD, NUMPOLIZACNTR, CODOPER, TIPOOPERACIONID, INSTRMONETARIOID, MONEDAID, PRODUCTOID, MONTOCNTR, TIPOCAMBIOCNTR, MONTOMNCNTR, MONTOUSD, DS_CONCEPTO_OPERACION,
                                                               DS_CONCEPTO_PAGO, VIGENTE_CANCELACION, SW_TRANSACCION_MANUAL, STATUS_PROV, ID_PROCESO, SWSINCRONIZADO, CVE_ESTADO, CREADO_POR, HORA_OPERACION, FECHAOPERACIONCNTR,
                                                               FEC_CREACION, FEC_APERTURA_PRODUCTO, FEC_FIN_PRODUCTO)
-               VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',ROW)
+               VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',ROW)
+        cursor.execute('''SET IDENTITY_INSERT STP_UAT.IFT.MTS_DCONTRATANTE OFF''')
     except pyodbc.DatabaseError as err:
         print(f'**** Error en el proceso de inserción -> {err}')
         cnxn.rollback()           
@@ -101,4 +105,5 @@ for x in range(NO_REGISTROS):
         cnxn.commit()
 
 t2 = time.time()
-print(f'***** Se tardo en ejecutar {NO_REGISTROS} en {(t2 - t1) * 1000} segundos')
+print(f'***** Se tardo en ejecutar {NO_REGISTROS} en {(t2 - t1)} segundos')
+print(f'***** Se tardo en ejecutar {NO_REGISTROS} en {((t2 - t1) / 60)} minutos')
